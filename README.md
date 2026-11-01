@@ -3,7 +3,18 @@
 Trợ lý AI cà khịa dễ thương, chạy local với UI cơ bản.
 Your sassy assistant watching your every move 👀✨
 
-## Chạy nhanh
+## Mở nhanh (Windows)
+
+Bấm đúp **`Mo_Anna.bat`** → hiện bảng điều khiển với các nút:
+
+- **Mở Anna VTuber**: tự bật Ollama → chạy Open-LLM-VTuber → mở trang web khi đã sẵn sàng.
+- **Chat chữ với Anna**: mở cửa sổ chat AnnaLite.
+- **Tắt Anna VTuber** / **Mở lại trang web**.
+- **Tạo lối tắt Desktop**: lần sau bấm biểu tượng "Anna" ngoài Desktop là mở.
+
+Đèn trạng thái cho biết Ollama, model và Anna VTuber đã sẵn sàng chưa (đèn đỏ là có vấn đề, kèm lý do).
+
+## Chạy bằng lệnh
 
 1. Chuẩn bị model local (offline): xem hướng dẫn chi tiết ở
    [docs/CHAY_MODEL_OFFLINE.md](docs/CHAY_MODEL_OFFLINE.md)
@@ -24,6 +35,8 @@ Anna hiện chữ dần khi đang trả lời và nhớ chuyện cũ giữa các
 
 | File | Vai trò |
 |---|---|
+| `Mo_Anna.bat` | Bấm đúp để mở bảng điều khiển |
+| `anna_launcher.py` | Bảng điều khiển: mở/tắt Anna VTuber, mở chat |
 | `anna_lite_ui.py` | Giao diện chat Tkinter |
 | `anna_llm.py` | Kết nối tới model local (Ollama / llama.cpp / LM Studio) |
 | `model_config.json` | Địa chỉ server, tên model, nhiệt độ, độ dài trả lời, trí nhớ... |

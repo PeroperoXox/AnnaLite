@@ -10,3 +10,6 @@ venv/
 
 # Trí nhớ chat của Anna (riêng tư)
 anna_memory.json
+
+# Cài đặt riêng của bảng điều khiển
+launcher_settings.json
