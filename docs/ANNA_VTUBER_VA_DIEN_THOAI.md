@@ -54,47 +54,85 @@ Bản chính thức có thể "suy nghĩ" trước khi trả lời nên chậm h
 Cả 3 thứ đã gói sẵn trong file nhân vật
 [`integrations/open-llm-vtuber/anna_vi.yaml`](../integrations/open-llm-vtuber/anna_vi.yaml),
 kèm tính cách của Anna, được chỉnh để nói ngắn, không emoji (cho hợp giọng nói).
+Script cài đặt bên dưới sẽ tự đưa file này vào `conf.yaml`.
 
 > Không nên tự làm lại cả Open-LLM-VTuber trong AnnaLite: dự án đó đã làm rất kỹ
 > (Live2D, ngắt lời khi đang nói, chống AI nghe lại giọng của chính nó...).
 > Dùng nó và chỉ thêm "linh hồn" Anna vào là hợp lý nhất.
 
-### Cài đặt (cần mạng lần đầu)
+### Cài đặt tự động (khuyên dùng, cần mạng lần đầu)
 
-Cần có: [Git](https://git-scm.com/), [uv](https://docs.astral.sh/uv/) (`winget install astral-sh.uv`),
-[ffmpeg](https://ffmpeg.org/) (`winget install ffmpeg`), và Ollama (đã có).
-Xem thêm [hướng dẫn chính thức](https://open-llm-vtuber.github.io/docs/quick-start).
+Script `scripts/cai_open_llm_vtuber.ps1` làm hết các bước trong
+[hướng dẫn chính thức](https://docs.llmvtuber.com/en/docs/quick-start), cộng thêm phần tiếng Việt:
+cài Git, FFmpeg, uv → tải Open-LLM-VTuber (có `--recursive`) → `uv sync` →
+thêm `faster-whisper` và `piper-tts` → tải giọng Piper tiếng Việt → đưa Anna vào `conf.yaml`
+để Anna là nhân vật mặc định.
+
+Mở **PowerShell** trong thư mục AnnaLite:
 
 ```powershell
-git clone https://github.com/Open-LLM-VTuber/Open-LLM-VTuber --recursive
-cd Open-LLM-VTuber
-uv sync
-
-# thêm bộ nghe (Whisper) và bộ nói (Piper) chạy offline
-uv add faster-whisper piper-tts
-
-# copy nhân vật Anna vào (sửa đường dẫn tới thư mục AnnaLite của sếp)
-copy ..\AnnaLite\integrations\open-llm-vtuber\anna_vi.yaml characters\
+powershell -ExecutionPolicy Bypass -File scripts\cai_open_llm_vtuber.ps1
 ```
 
-**Tải giọng tiếng Việt cho Piper:** vào
-<https://huggingface.co/rhasspy/piper-voices/tree/main/vi/vi_VN/vais1000/medium>, tải
-**cả 2 file** `vi_VN-vais1000-medium.onnx` và `vi_VN-vais1000-medium.onnx.json`,
-bỏ vào thư mục `Open-LLM-VTuber\models\piper\` (tự tạo thư mục nếu chưa có).
-Nghe không ưng thì trong thư mục `vi/vi_VN/` còn vài giọng khác. Đổi thì nhớ sửa
-`model_path` trong `anna_vi.yaml`.
+Tùy chọn:
+
+| Thêm vào cuối lệnh | Tác dụng |
+|---|---|
+| `-Model qwen3.5:4b` | Dùng model Ollama khác (khi chưa có `anna-qwen`) |
+| `-Lan` | Cho điện thoại cùng Wi-Fi mở được giao diện |
+| `-InstallDir D:\AI\Open-LLM-VTuber` | Cài chỗ khác (mặc định `C:\Users\<tên>\Open-LLM-VTuber`). **Đường dẫn không được có dấu.** |
+
+- Bước `uv sync` lần đầu khá lâu (tải PyTorch...), cứ để nó chạy.
+- Chạy lại script bao nhiêu lần cũng được, bước nào xong rồi sẽ bỏ qua.
+- **Không cần** cài CUDA Toolkit / cuDNN như hướng dẫn gốc nhắc tới: Ollama đã kèm sẵn
+  phần chạy GPU, còn nghe/nói của Anna chạy bằng CPU.
+- `conf.yaml` cũ (nếu có) được sao lưu thành `conf.yaml.truoc-anna.bak`.
 
 ### Chạy
 
 ```powershell
+cd $HOME\Open-LLM-VTuber
 uv run run_server.py
 ```
 
-- Lần đầu nếu chưa có `conf.yaml`, chương trình sẽ hỏi ngôn ngữ và tạo từ mẫu.
-  Nếu không, copy `config_templates\conf.default.yaml` thành `conf.yaml`.
-- Lần đầu sẽ tự tải vài model nhỏ (bộ nghe giọng...) nên cần mạng. Các lần sau chạy offline.
-- Mở trình duyệt: <http://localhost:12393> → mở phần **cài đặt** (biểu tượng bánh răng)
-  → chọn nhân vật **Anna (Tiếng Việt)** → cho phép dùng micro → nói chuyện thôi.
+- Đợi tới dòng `Uvicorn running on ...`, rồi mở **Chrome** (dự án chỉ khuyên dùng Chrome):
+  <http://localhost:12393> → cho phép dùng micro → nói chuyện thôi.
+- Lần chạy đầu sẽ tự tải model nghe giọng Whisper (~500 MB), cần có mạng. Các lần sau chạy offline.
+- Muốn có app riêng hoặc chế độ "thú cưng" nằm trên desktop: tải file `.exe` `open-llm-vtuber-electron`
+  ở [Open-LLM-VTuber-Web Releases](https://github.com/Open-LLM-VTuber/Open-LLM-VTuber-Web/releases/latest).
+  App này cần server (`uv run run_server.py`) đang chạy.
+
+### Cài tay (nếu script lỗi)
+
+```powershell
+winget install Git.Git
+winget install Gyan.FFmpeg
+winget install --id=astral-sh.uv -e
+# đóng PowerShell, mở lại
+
+git clone https://github.com/Open-LLM-VTuber/Open-LLM-VTuber --recursive
+cd Open-LLM-VTuber
+uv sync
+uv add faster-whisper piper-tts
+```
+
+Tải 2 file `vi_VN-vais1000-medium.onnx` và `vi_VN-vais1000-medium.onnx.json` ở
+<https://huggingface.co/rhasspy/piper-voices/tree/main/vi/vi_VN/vais1000/medium>,
+bỏ vào `Open-LLM-VTuber\models\piper\`. Rồi đưa Anna vào cấu hình (sửa đường dẫn AnnaLite cho đúng):
+
+```powershell
+uv run python ..\AnnaLite\integrations\open-llm-vtuber\apply_anna.py .
+```
+
+### Lỗi thường gặp
+
+| Triệu chứng | Cách xử lý |
+|---|---|
+| Web hiện `{"detail":"Not Found"}` | Thiếu giao diện: `git submodule update --init --recursive` trong thư mục Open-LLM-VTuber |
+| `Error calling the chat endpoint` | Ollama chưa bật, hoặc tên model sai: gõ `ollama list` xem tên, chạy lại script với `-Model <tên>` |
+| Lỗi thiếu file âm thanh | Chưa có FFmpeg: `winget install Gyan.FFmpeg`, mở lại PowerShell |
+| `Model not found: models/piper/...` | Chưa tải giọng Piper (xem phần cài tay ở trên) |
+| Bật VPN/proxy thì không gọi được Ollama | Tắt proxy, hoặc cho proxy bỏ qua `localhost` |
 
 ### Nếu máy chạy không nổi
 
@@ -131,8 +169,8 @@ Cách này không có Live2D hay giọng nói, nhưng mang Anna đi đâu cũng 
 Máy tính chạy Open-LLM-VTuber, điện thoại chỉ mở web. Không cần internet, chỉ cần
 2 máy chung một mạng Wi-Fi.
 
-1. Trong `conf.yaml` của Open-LLM-VTuber, đổi `host: 'localhost'` thành `host: '0.0.0.0'`
-   rồi chạy lại server. Windows hỏi tường lửa thì bấm **Allow**.
+1. Chạy lại script cài đặt với `-Lan` (hoặc tự sửa `host: 'localhost'` thành `host: '0.0.0.0'`
+   trong `conf.yaml` của Open-LLM-VTuber), rồi chạy lại server. Windows hỏi tường lửa thì bấm **Allow**.
 2. Xem IP máy tính: gõ `ipconfig`, tìm dòng **IPv4 Address** (ví dụ `192.168.1.5`).
 3. Trên điện thoại, mở **Chrome**: `http://192.168.1.5:12393`.
 4. **Micro sẽ không chạy**, vì trình duyệt chỉ cho dùng micro trên trang `https`. Cách khắc phục:

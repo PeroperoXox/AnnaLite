@@ -1,7 +1,10 @@
 # Nhân vật Anna cho Open-LLM-VTuber (https://github.com/Open-LLM-VTuber/Open-LLM-VTuber)
 #
-# Cách dùng: copy file này vào thư mục `characters/` của Open-LLM-VTuber,
-# chạy server, rồi chọn nhân vật "Anna (Tiếng Việt)" trong phần cài đặt trên web.
+# Cách dùng (chọn 1):
+#  - Để Anna là nhân vật mặc định: chạy scripts/cai_open_llm_vtuber.ps1, hoặc apply_anna.py
+#    (gộp file này vào conf.yaml).
+#  - Hoặc copy file này vào thư mục `characters/` của Open-LLM-VTuber, rồi chọn nhân vật
+#    "Anna (Tiếng Việt)" trong phần cài đặt trên web.
 # Chỉ cần ghi những gì khác với conf.yaml, phần còn lại tự lấy từ conf.yaml.
 # Hướng dẫn đầy đủ: docs/ANNA_VTUBER_VA_DIEN_THOAI.md trong repo AnnaLite.
 
