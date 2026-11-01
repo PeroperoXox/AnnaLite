@@ -7,3 +7,6 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+
+# Trí nhớ chat của Anna (riêng tư)
+anna_memory.json

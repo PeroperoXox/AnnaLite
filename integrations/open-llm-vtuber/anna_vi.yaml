@@ -1,0 +1,67 @@
+# Nhân vật Anna cho Open-LLM-VTuber (https://github.com/Open-LLM-VTuber/Open-LLM-VTuber)
+#
+# Cách dùng: copy file này vào thư mục `characters/` của Open-LLM-VTuber,
+# chạy server, rồi chọn nhân vật "Anna (Tiếng Việt)" trong phần cài đặt trên web.
+# Chỉ cần ghi những gì khác với conf.yaml, phần còn lại tự lấy từ conf.yaml.
+# Hướng dẫn đầy đủ: docs/ANNA_VTUBER_VA_DIEN_THOAI.md trong repo AnnaLite.
+
+character_config:
+  conf_name: 'Anna (Tiếng Việt)'
+  conf_uid: 'anna_lite_vi_001'
+  live2d_model_name: 'mao_pro'   # model Live2D có sẵn; đổi khi sếp có model riêng cho Anna
+  character_name: 'Anna'
+  human_name: 'Sếp'
+  avatar: ''                     # bỏ trống = hiện chữ "A"; muốn ảnh thì để file vào thư mục avatars/
+
+  persona_prompt: |
+    Bạn là Anna, một cô trợ lý AI dễ thương nhưng hay cà khịa, đang sống trong máy tính của người dùng.
+    Bạn gọi người dùng là "sếp" và xưng "Anna" hoặc "em".
+    Tính cách: lanh lợi, hơi lắm mồm, thích trêu sếp một chút nhưng thật lòng quan tâm và luôn giúp đỡ đàng hoàng.
+    Bạn đang NÓI chuyện bằng giọng nói, nên:
+    - Trả lời ngắn, tự nhiên như nói chuyện, thường chỉ 1 đến 3 câu.
+    - Không dùng emoji, không gạch đầu dòng, không markdown, không viết code trừ khi sếp yêu cầu.
+    - Luôn trả lời bằng tiếng Việt, trừ khi sếp nói ngôn ngữ khác.
+
+  agent_config:
+    agent_settings:
+      basic_memory_agent:
+        llm_provider: 'ollama_llm'
+        use_mcpp: False          # tắt công cụ (tìm web cần internet, model nhỏ dùng công cụ cũng kém)
+    llm_configs:
+      ollama_llm:
+        base_url: 'http://localhost:11434/v1'
+        model: 'anna-qwen'       # model tạo từ Modelfile của AnnaLite. Dùng tạm 'qwen3.5:4b' cũng được.
+        temperature: 0.8
+        keep_alive: -1           # giữ model trong card đồ họa, trả lời nhanh hơn
+        unload_at_exit: True
+
+  # Nhận giọng nói tiếng Việt, chạy offline.
+  # Mặc định của Open-LLM-VTuber (SenseVoice) KHÔNG hiểu tiếng Việt nên phải đổi sang Whisper.
+  # Cài thêm 1 lần:  uv add faster-whisper   (lần chạy đầu sẽ tự tải model ~500 MB)
+  asr_config:
+    asr_model: 'faster_whisper'
+    faster_whisper:
+      model_path: 'small'        # 'small' nhanh; nghe sai nhiều thì đổi 'medium' (chậm hơn)
+      download_root: 'models/whisper'
+      language: 'vi'
+      device: 'cpu'              # để card đồ họa 4 GB dành cho model chat
+      compute_type: 'int8'
+      prompt: 'Anna, sếp.'
+
+  # Giọng nói tiếng Việt, chạy offline bằng Piper.
+  # Cài thêm 1 lần:  uv add piper-tts
+  # Tải giọng: file vi_VN-vais1000-medium.onnx và .onnx.json bỏ vào models/piper/
+  tts_config:
+    tts_model: 'piper_tts'
+    piper_tts:
+      model_path: 'models/piper/vi_VN-vais1000-medium.onnx'
+      speaker_id: 0
+      length_scale: 0.95         # < 1 nói nhanh hơn, > 1 nói chậm hơn
+      noise_scale: 0.667
+      noise_w: 0.8
+      volume: 1.0
+      normalize_audio: true
+      use_cuda: false
+    # Giọng hay hơn nhưng CẦN INTERNET: đổi tts_model ở trên thành 'edge_tts'
+    edge_tts:
+      voice: 'vi-VN-HoaiMyNeural'

@@ -145,6 +145,8 @@ Muốn chắc là offline thật: tắt Wi-Fi rồi chat thử. 😎
   - `max_history_turns`: Anna nhớ bao nhiêu lượt chat gần nhất.
   - `disable_thinking`: `true` = tắt chế độ "suy nghĩ" của Qwen, trả lời nhanh hơn.
     Code cũng tự lọc phần `<think>...</think>` nếu model vẫn sinh ra.
+  - `stream`: `true` = chữ hiện dần trong lúc model đang sinh.
+  - `memory_file`: file lưu trí nhớ giữa các lần mở Anna. Để `""` nếu không muốn Anna nhớ.
 
 ## Lỗi thường gặp
 

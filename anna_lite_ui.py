@@ -42,6 +42,8 @@ class AnnaApp:
 
         cfg = self.brain.config
         self.write(f"[model: {cfg['model']} @ {cfg['base_url']}]\n", "sys")
+        if self.brain.history:
+            self.write(f"[Anna còn nhớ {len(self.brain.history) // 2} lượt chat trước — bấm 'Xóa trí nhớ' để bắt đầu lại]\n", "sys")
         self.write("Anna: " + self.brain.personality["greeting"] + "\n\n", "anna")
         self.entry.focus_set()
         self.touch()
@@ -76,30 +78,58 @@ class AnnaApp:
             return
         self.entry.delete(0, tk.END)
         self.write("Sếp: " + text + "\n", "me")
-        self.write("Anna đang nghĩ...\n", "sys")
+        self.write("Anna: ", "anna")
+        # Đánh dấu chỗ bắt đầu câu trả lời, để cập nhật chữ dần dần khi model đang sinh.
+        self.chat.mark_set("reply_start", tk.END + "-1c")
+        self.chat.mark_gravity("reply_start", tk.LEFT)
+        self.set_reply("đang nghĩ...", "sys")
         self.busy = True
         self.send_btn.config(state=tk.DISABLED)
         self.touch()
         threading.Thread(target=self.work, args=(text,), daemon=True).start()
 
+    def set_reply(self, text, tag="anna"):
+        """Thay phần câu trả lời đang hiện bằng nội dung mới nhất."""
+        self.chat.config(state=tk.NORMAL)
+        self.chat.delete("reply_start", tk.END)
+        self.chat.insert(tk.END, text, tag)
+        self.chat.config(state=tk.DISABLED)
+        self.chat.see(tk.END)
+
     def work(self, text):
         # Chạy ở thread riêng để UI không bị đơ trong lúc model đang sinh chữ.
+        # Thread này không đụng vào Tkinter, chỉ gửi kết quả qua queue.
+        def on_update(visible):
+            if visible:
+                self.results.put(("partial", visible))
+
         try:
-            self.results.put(("anna", "Anna: " + self.brain.ask(text)))
+            self.results.put(("done", self.brain.ask(text, on_update=on_update)))
         except LocalLLMError as e:
-            self.results.put(("sys", "[Lỗi] " + str(e)))
+            self.results.put(("error", str(e)))
 
     def poll(self):
-        try:
-            tag, msg = self.results.get_nowait()
-        except queue.Empty:
-            pass
-        else:
-            self.write(msg + "\n\n", tag)
+        latest = None
+        while True:
+            try:
+                kind, msg = self.results.get_nowait()
+            except queue.Empty:
+                break
+            if kind == "partial":
+                latest = msg  # gộp nhiều mẩu nhỏ, chỉ vẽ lại bản mới nhất
+                continue
+            latest = None
+            if kind == "done":
+                self.set_reply(msg + "\n\n")
+            else:
+                self.set_reply("(lỗi)\n", "sys")
+                self.write("[Lỗi] " + msg + "\n\n", "sys")
             self.busy = False
             self.send_btn.config(state=tk.NORMAL)
             self.touch()
-        self.root.after(100, self.poll)
+        if latest is not None and self.busy:
+            self.set_reply(latest)
+        self.root.after(50, self.poll)
 
 
 if __name__ == "__main__":

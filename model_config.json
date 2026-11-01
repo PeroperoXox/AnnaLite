@@ -7,5 +7,7 @@
   "max_tokens": 512,
   "timeout": 180,
   "max_history_turns": 10,
-  "disable_thinking": true
+  "disable_thinking": true,
+  "stream": true,
+  "memory_file": "anna_memory.json"
 }
