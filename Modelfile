@@ -1,0 +1,32 @@
+# Modelfile cho Ollama — tạo model "anna-qwen" từ file GGUF local.
+# Dùng:  ollama create anna-qwen -f Modelfile
+# Sửa dòng FROM nếu file .gguf của sếp nằm chỗ khác / tên khác.
+FROM ./models/anna-qwen-Q4_K_M.gguf
+
+# Định dạng chat ChatML của dòng Qwen. Khối <think></think> rỗng ở cuối
+# để tắt chế độ "suy nghĩ" -> Anna trả lời nhanh, không lan man.
+TEMPLATE """{{- if .System }}<|im_start|>system
+{{ .System }}<|im_end|>
+{{ end }}
+{{- range $i, $_ := .Messages }}
+{{- $last := eq (len (slice $.Messages $i)) 1 -}}
+{{- if eq .Role "user" }}<|im_start|>user
+{{ .Content }}<|im_end|>
+{{ else if eq .Role "assistant" }}<|im_start|>assistant
+{{ .Content }}{{ if not $last }}<|im_end|>
+{{ end }}
+{{- end }}
+{{- if and (ne .Role "assistant") $last }}<|im_start|>assistant
+<think>
+
+</think>
+
+{{ end }}
+{{- end }}"""
+
+PARAMETER stop "<|im_end|>"
+PARAMETER stop "<|im_start|>"
+PARAMETER temperature 0.7
+PARAMETER top_p 0.8
+PARAMETER top_k 20
+PARAMETER num_ctx 8192

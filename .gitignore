@@ -1,0 +1,9 @@
+# File model rất nặng (vài GB) — không đẩy lên GitHub
+models/
+*.gguf
+*.safetensors
+
+__pycache__/
+*.pyc
+.venv/
+venv/

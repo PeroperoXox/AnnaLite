@@ -1,0 +1,11 @@
+{
+  "base_url": "http://localhost:11434/v1",
+  "model": "anna-qwen",
+  "api_key": "local",
+  "temperature": 0.7,
+  "top_p": 0.8,
+  "max_tokens": 512,
+  "timeout": 180,
+  "max_history_turns": 10,
+  "disable_thinking": true
+}
